@@ -1,4 +1,3 @@
-using Assets.CasualCore.Scripts.Editor;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,6 +5,10 @@ namespace Assets.CasualCore.Scripts.SceneSystem.Editor
 {
     public class SceneBuilderWindow : EditorWindow
     {
+        private DefaultSceneBuilder _sceneBuilder = new DefaultSceneBuilder();
+
+        private string _sceneName = "NewGameScene";
+
         [MenuItem("HyperCasualCore/Scene Builder")]
         public static void ShowWindow()
         {
@@ -18,9 +21,13 @@ namespace Assets.CasualCore.Scripts.SceneSystem.Editor
 
             GUILayout.Space(10);
 
+            _sceneName = EditorGUILayout.TextField("Scene Name", _sceneName);
+
+            GUILayout.Space(10);
+
             if (GUILayout.Button("Create New Game Scene"))
             {
-                Debug.Log("Button clicked!");
+                _sceneBuilder.BuildGameLevelScene(_sceneName);
             }
         }
     }

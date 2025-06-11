@@ -8,27 +8,27 @@ namespace Assets.CasualCore.Scripts.Runtime.SceneSystem
     {
 #if UNITY_EDITOR
 #pragma warning disable 0649
-        [SerializeField] private UnityEditor.SceneAsset scene;
+        [SerializeField] private UnityEditor.SceneAsset _scene;
 #pragma warning restore 0649
 #endif
 
-        [SerializeField] private string sceneName = null;
+        [SerializeField] private string _sceneName = null;
 
-        public string SceneName => sceneName;
+        public string SceneName => _sceneName;
 
         public void OnAfterDeserialize() { }
 
         public void OnBeforeSerialize()
         {
 #if UNITY_EDITOR
-            string nameValue = scene != null ? scene.name : null;
-            sceneName = nameValue;
+            string nameValue = _scene != null ? _scene.name : null;
+            _sceneName = nameValue;
 #endif
         }
 
         public AsyncOperation LoadAsync(LoadSceneParameters parameters)
         {
-            return SceneManager.LoadSceneAsync(sceneName, parameters);
+            return SceneManager.LoadSceneAsync(_sceneName, parameters);
         }
     }
 }
