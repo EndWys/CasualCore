@@ -1,14 +1,17 @@
-public interface IBootstrapSceneBuilder
+namespace Assets.CasualCore.Scripts.SceneSystem.Editor
 {
-    public void BuildBootstrapScene();
-}
+    public interface IBootstrapSceneBuilder
+    {
+        public void BuildBootstrapScene();
+    }
 
-public interface IGameLevelSceneBuilder
-{
-    public void BuildGameLevelScene(string sceneName);
-}
+    public interface IGameLevelSceneBuilder
+    {
+        public void BuildGameLevelScene(string sceneName);
+    }
 
-public interface IPopUpSceneBuilder
-{
+    public interface IPopUpSceneBuilder
+    {
 
+    }
 }

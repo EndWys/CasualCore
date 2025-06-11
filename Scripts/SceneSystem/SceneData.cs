@@ -26,6 +26,11 @@ namespace Assets.CasualCore.Scripts.Runtime.SceneSystem
 #endif
         }
 
+        public void SetScene(UnityEditor.SceneAsset scene)
+        {
+            _scene = scene;
+        }
+
         public AsyncOperation LoadAsync(LoadSceneParameters parameters)
         {
             return SceneManager.LoadSceneAsync(_sceneName, parameters);

@@ -21,6 +21,13 @@ namespace Assets.CasualCore.Scripts.SceneSystem.Editor
 
             GUILayout.Space(10);
 
+            if (GUILayout.Button("Create Bootstrap Scene"))
+            {
+                _sceneBuilder.BuildBootstrapScene();
+            }
+
+            GUILayout.Space(20);
+
             _sceneName = EditorGUILayout.TextField("Scene Name", _sceneName);
 
             GUILayout.Space(10);

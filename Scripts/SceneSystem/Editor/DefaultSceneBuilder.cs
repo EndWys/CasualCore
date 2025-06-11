@@ -1,4 +1,5 @@
 using Assets.CasualCore.Scripts.Runtime.SceneSystem;
+using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -6,8 +7,53 @@ using UnityEngine.SceneManagement;
 
 namespace Assets.CasualCore.Scripts.SceneSystem.Editor
 {
-    public class DefaultSceneBuilder : IGameLevelSceneBuilder
+    public class DefaultSceneBuilder : IGameLevelSceneBuilder, IBootstrapSceneBuilder
     {
+        #region BootstrapScene
+
+        public void BuildBootstrapScene()
+        {
+            string sceneName = "Bootstrapper";
+            string sceneFolderPath = $"Assets/Scenes/{sceneName}";
+            string sceneAssetPath = $"{sceneFolderPath}/{sceneName}.unity";
+
+            if (File.Exists(sceneAssetPath))
+            {
+                Debug.LogWarning($"Scene '{sceneName}' already exists at {sceneAssetPath}. Aborting.");
+                return;
+            }
+
+            if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
+                AssetDatabase.CreateFolder("Assets", "Scenes");
+
+            if (!AssetDatabase.IsValidFolder(sceneFolderPath))
+                AssetDatabase.CreateFolder("Assets/Scenes", sceneName);
+
+            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            EditorSceneManager.SaveScene(scene, sceneAssetPath);
+            EditorSceneManager.OpenScene(sceneAssetPath, OpenSceneMode.Single);
+
+            GameObject bootstrapperGO = new GameObject("Bootstrapper");
+
+            var bootstrapperType = typeof(Bootstrapper);
+            if (bootstrapperType != null)
+            {
+                bootstrapperGO.AddComponent(bootstrapperType);
+            }
+            else
+            {
+                Debug.LogWarning("Bootstrapper.cs not found. Add the script to the object manually.");
+            }
+
+            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+
+            Debug.Log($"Bootstrap scene created at {sceneAssetPath}");
+        }
+
+        #endregion
+
+        #region GameLevelScene
+
         public void BuildGameLevelScene(string sceneName)
         {
             if (string.IsNullOrWhiteSpace(sceneName))
@@ -33,7 +79,8 @@ namespace Assets.CasualCore.Scripts.SceneSystem.Editor
 
             EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
 
-            CreateSceneDataAsset(sceneName, sceneFolderPath);
+            SceneAsset sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(sceneAssetPath);
+            CreateSceneDataAsset(sceneAsset, sceneFolderPath);
         }
 
         private void CreateHierarchy()
@@ -75,14 +122,22 @@ namespace Assets.CasualCore.Scripts.SceneSystem.Editor
             child.transform.SetParent(parent);
         }
 
-        private void CreateSceneDataAsset(string sceneName, string folderPath)
+        private void CreateSceneDataAsset(SceneAsset scene, string folderPath)
         {
-            string path = $"{folderPath}/{sceneName}.asset";
+            string path = $"{folderPath}/{scene.name}.asset";
             SceneData sceneData = ScriptableObject.CreateInstance<SceneData>();
+
+            sceneData.SetScene(scene);
+
             AssetDatabase.CreateAsset(sceneData, path);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+
+            AssetDatabase.SaveAssets();
+
             Debug.Log($"SceneData created at: {path}");
         }
+
+        #endregion
     }
 }
