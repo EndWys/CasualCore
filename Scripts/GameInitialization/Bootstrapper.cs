@@ -1,4 +1,5 @@
 using Assets.CasualCore.Scripts.Runtime.SceneSystem;
+using Assets.CasualCore.Scripts.ServiceLocatorSystem;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -12,10 +13,15 @@ public class Bootstrapper : MonoBehaviour
 
     [SerializeField] SceneData _firstScene;
 
+    private ILocatorLoader _locatorLoader;
+
     private void Start()
     {
         Application.runInBackground = true;
         //await UnityServices.InitializeAsync();
+
+        _locatorLoader = new ServiceLocatorLoader_Global();
+        _locatorLoader.LoadLocator();
 
         IsBootstrapperLoaded = true;
 
@@ -38,5 +44,10 @@ public class Bootstrapper : MonoBehaviour
 
         if (SceneManager.GetSceneByName(BOOTSTRAPPER_SCENE_NAME).isLoaded != true)
             SceneManager.LoadScene(BOOTSTRAPPER_SCENE_NAME);
+    }
+
+    private void OnDestroy()
+    {
+        _locatorLoader.UnloadLocator();
     }
 }
