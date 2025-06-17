@@ -2,7 +2,7 @@ using Assets._Project.Scripts.ServiceLocatorSystem;
 
 namespace Assets.CasualCore.Scripts.ServiceLocatorSystem
 {
-    public class ServiceLocatorLoader_Game : ILocatorLoader
+    public class ServiceLocatorLoader_Level : ILocatorLoader
     {
         private ServiceLocator _locator;
 
