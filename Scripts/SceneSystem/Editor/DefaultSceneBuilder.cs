@@ -1,4 +1,5 @@
 using Assets.CasualCore.Scripts.Runtime.SceneSystem;
+using System;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -23,29 +24,16 @@ namespace Assets.CasualCore.Scripts.SceneSystem.Editor
                 return;
             }
 
-            if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
-                AssetDatabase.CreateFolder("Assets", "Scenes");
-
             if (!AssetDatabase.IsValidFolder(sceneFolderPath))
                 AssetDatabase.CreateFolder("Assets/Scenes", sceneName);
 
-            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            EditorSceneManager.SaveScene(scene, sceneAssetPath);
-            EditorSceneManager.OpenScene(sceneAssetPath, OpenSceneMode.Single);
-
-            GameObject bootstrapperGO = new GameObject("Bootstrapper");
-
-            var bootstrapperType = typeof(Bootstrapper);
-            if (bootstrapperType != null)
+            Action AfterSceneOpened = () =>
             {
-                bootstrapperGO.AddComponent(bootstrapperType);
-            }
-            else
-            {
-                Debug.LogWarning("Bootstrapper.cs not found. Add the script to the object manually.");
-            }
+                GameObject bootstrapperGO = new GameObject("Bootstrapper");
+                bootstrapperGO.AddComponent<Bootstrapper>();
+            };
 
-            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+            CreateScene(sceneAssetPath, AfterSceneOpened);
 
             Debug.Log($"Bootstrap scene created at {sceneAssetPath}");
         }
@@ -62,25 +50,23 @@ namespace Assets.CasualCore.Scripts.SceneSystem.Editor
                 return;
             }
 
-            if (!AssetDatabase.IsValidFolder("Assets/Scenes"))
-                AssetDatabase.CreateFolder("Assets", "Scenes");
+            string sceneFolderPath = GetSceneFolderPath(sceneName);
+            string sceneAssetPath = GetSceneAssetPath(sceneFolderPath, sceneName);
 
-            string sceneFolderPath = $"Assets/Scenes/{sceneName}";
+            if (File.Exists(sceneAssetPath))
+            {
+                Debug.LogWarning($"Scene '{sceneName}' already exists at {sceneAssetPath}. Aborting.");
+                return;
+            }
+
             if (!AssetDatabase.IsValidFolder(sceneFolderPath))
                 AssetDatabase.CreateFolder("Assets/Scenes", sceneName);
 
-            string sceneAssetPath = $"{sceneFolderPath}/{sceneName}.unity";
-
-            Scene newScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            EditorSceneManager.SaveScene(newScene, sceneAssetPath);
-            EditorSceneManager.OpenScene(sceneAssetPath, OpenSceneMode.Single);
-
-            CreateHierarchy();
-
-            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+            CreateScene(sceneAssetPath, CreateHierarchy);
 
             SceneAsset sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(sceneAssetPath);
             CreateSceneDataAsset(sceneAsset, sceneFolderPath);
+
         }
 
         private void CreateHierarchy()
@@ -139,5 +125,26 @@ namespace Assets.CasualCore.Scripts.SceneSystem.Editor
         }
 
         #endregion
+
+        private string GetSceneFolderPath(string folderName)
+        {
+            return $"Assets/Scenes/{folderName}";
+        }
+
+        private string GetSceneAssetPath(string sceneFolderPath, string sceneName)
+        {
+            return $"{sceneFolderPath}/{sceneName}.unity";
+        }
+
+        private void CreateScene(string sceneAssetPath, Action AfterSceneOpened)
+        {
+            Scene newScene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            EditorSceneManager.SaveScene(newScene, sceneAssetPath);
+            EditorSceneManager.OpenScene(sceneAssetPath, OpenSceneMode.Single);
+
+            AfterSceneOpened.Invoke();
+
+            EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+        }
     }
 }
