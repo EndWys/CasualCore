@@ -1,4 +1,6 @@
+using Assets.CasualCore.Scripts.GameInitialization;
 using Assets.CasualCore.Scripts.Runtime.SceneSystem;
+using Assets.CasualCore.Scripts.ServiceLocatorSystem;
 using System;
 using System.IO;
 using UnityEditor;
@@ -73,8 +75,8 @@ namespace Assets.CasualCore.Scripts.SceneSystem.Editor
         {
             // ===== BOOTSTRAPPING =====
             var bootstrapping = CreateEmptyGroup("===== BOOTSTRAPPING =====");
-            CreateChild("GameLevel_EntryPoint", bootstrapping.transform);
-            CreateChild("GameLevel_ServiceLoader", bootstrapping.transform);
+            GameObject entryPoint = ObjectFactory.CreateGameObject("GameLevel_EntryPoint", typeof(GameLevel_EntryPoint));
+            entryPoint.transform.SetParent(bootstrapping.transform);
 
             // ===== MANAGERS =====
             var managers = CreateEmptyGroup("===== MANAGERS =====");
