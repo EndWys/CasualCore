@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets._Project.Scripts.StateMachineSystem
+namespace Assets.CasualCore.Scripts.StateMachineSystem
 {
     public abstract class GenericStateMachine<TState> : IStateSwitcher<TState> where TState : State<TState>
     {

@@ -1,4 +1,4 @@
-namespace Assets._Project.Scripts.StateMachineSystem
+namespace Assets.CasualCore.Scripts.StateMachineSystem
 {
     public interface IState
     {
